@@ -1,20 +1,36 @@
 #
 # This policy configuration will be used by all products that
-# inherit from CM
+# inherit from Fusion
 #
 
 BOARD_SEPOLICY_DIRS += \
-    vendor/cm/sepolicy
+    vendor/fusion/sepolicy
 
 BOARD_SEPOLICY_UNION += \
     file.te \
     file_contexts \
     genfs_contexts \
+    property_contexts \
     seapp_contexts \
+    service_contexts \
+    adbd.te \
+    app.te \
     auditd.te \
+    bootanim.te \
+    drmserver.te \
+    healthd.te \
+    hostapd.te \
     installd.te \
+    mediaserver.te \
     netd.te \
+    property.te \
+    recovery.te \
+    shell.te \
+    su.te \
+    sysinit.te \
     system.te \
     ueventd.te \
+    userinit.te \
     vold.te \
+    zygote.te \
     mac_permissions.xml
