@@ -1,5 +1,11 @@
 # Fusion devices
 add_lunch_combo fusionsp_i9300-userdebug
+add_lunch_combo fusionsp_i9305-userdebug
+add_lunch_combo fusionsp_jfltexx-userdebug
+add_lunch_combo fusionsp_jflteatt-userdebug
+add_lunch_combo fusionsp_jfltespr-userdebug
+add_lunch_combo fusionsp_jflteusc-userdebug
+add_lunch_combo fusionsp_jfltevzw-userdebug
 add_lunch_combo fusionsp_klte-userdebug
 add_lunch_combo fusionsp_kltedv-userdebug
 add_lunch_combo fusionsp_kltespr-userdebug
