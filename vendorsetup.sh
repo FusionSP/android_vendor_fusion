@@ -1,4 +1,19 @@
-for combo in $(curl -s https://raw.githubusercontent.com/CyanogenMod/hudson/master/cm-build-targets | sed -e 's/#.*$//' | grep cm-11.0 | awk {'print $1'})
-do
-    add_lunch_combo $combo
-done
+# Fusion devices
+add_lunch_combo i9300-userdebug
+add_lunch_combo i9305-userdebug
+add_lunch_combo jfltexx-userdebug
+add_lunch_combo jflteatt-userdebug
+add_lunch_combo jfltespr-userdebug
+add_lunch_combo jflteusc-userdebug
+add_lunch_combo jfltevzw-userdebug
+add_lunch_combo klte-userdebug
+add_lunch_combo kltedv-userdebug
+add_lunch_combo kltespr-userdebug
+add_lunch_combo klteusc-userdebug
+add_lunch_combo kltevzw-userdebug
+add_lunch_combo d850-userdebug
+add_lunch_combo d851-userdebug
+add_lunch_combo d855-userdebug
+add_lunch_combo vs985-userdebug
+add_lunch_combo ls990-userdebug
+add_lunch_combo shamu-userdebug

@@ -1,3 +1,3 @@
-# This device supports CM enhanced NFC
+# This device supports Fusion enhanced NFC
 PRODUCT_COPY_FILES += \
-    vendor/cm/config/permissions/com.cyanogenmod.nfc.enhanced.xml:system/etc/permissions/com.cyanogenmod.nfc.enhanced.xml
+    vendor/fusion/config/permissions/com.fusion.nfc.enhanced.xml:system/etc/permissions/com.fusion.nfc.enhanced.xml

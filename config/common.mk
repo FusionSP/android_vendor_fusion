@@ -1,7 +1,4 @@
-PRODUCT_BRAND ?= cyanogenmod
-
-SUPERUSER_EMBEDDED := true
-SUPERUSER_PACKAGE_PREFIX := com.android.settings.cyanogenmod.superuser
+PRODUCT_BRAND ?= Fusion
 
 ifneq ($(TARGET_SCREEN_WIDTH) $(TARGET_SCREEN_HEIGHT),$(space))
 # determine the smaller dimension
@@ -13,7 +10,7 @@ TARGET_BOOTANIMATION_SIZE := $(shell \
   fi )
 
 # get a sorted list of the sizes
-bootanimation_sizes := $(subst .zip,, $(shell ls vendor/cm/prebuilt/common/bootanimation))
+bootanimation_sizes := $(subst .zip,, $(shell ls vendor/fusion/prebuilt/common/bootanimation))
 bootanimation_sizes := $(shell echo -e $(subst $(space),'\n',$(bootanimation_sizes)) | sort -rn)
 
 # find the appropriate size and set
@@ -30,18 +27,10 @@ endef
 $(foreach size,$(bootanimation_sizes), $(call check_and_set_bootanimation,$(size)))
 
 ifeq ($(TARGET_BOOTANIMATION_HALF_RES),true)
-PRODUCT_BOOTANIMATION := vendor/cm/prebuilt/common/bootanimation/halfres/$(TARGET_BOOTANIMATION_NAME).zip
+PRODUCT_BOOTANIMATION := vendor/fusion/prebuilt/common/bootanimation/halfres/$(TARGET_BOOTANIMATION_NAME).zip
 else
-PRODUCT_BOOTANIMATION := vendor/cm/prebuilt/common/bootanimation/$(TARGET_BOOTANIMATION_NAME).zip
+PRODUCT_BOOTANIMATION := vendor/fusion/prebuilt/common/bootanimation/$(TARGET_BOOTANIMATION_NAME).zip
 endif
-endif
-
-ifdef CM_NIGHTLY
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.rommanager.developerid=cyanogenmodnightly
-else
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.rommanager.developerid=cyanogenmod
 endif
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
@@ -61,16 +50,14 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.com.android.wifi-watchlist=GoogleGuest \
     ro.setupwizard.enterprise_mode=1 \
     ro.com.android.dateformat=MM-dd-yyyy \
-    ro.com.android.dataroaming=false
+    ro.com.android.dataroaming=false \
+    ro.setupwizard.network_required=false \
+    ro.setupwizard.gservices_delay=-1
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.build.selinux=1
 
-# Disable multithreaded dexopt by default
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.dalvik.multithread=false
-
-# Thank you, please drive thru!
+# Tether for all
 PRODUCT_PROPERTY_OVERRIDES += persist.sys.dun.override=0
 
 ifneq ($(TARGET_BUILD_VARIANT),eng)
@@ -78,40 +65,43 @@ ifneq ($(TARGET_BUILD_VARIANT),eng)
 ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=1
 endif
 
-# Copy over the changelog to the device
-PRODUCT_COPY_FILES += \
-    vendor/cm/CHANGELOG.mkdn:system/etc/CHANGELOG-CM.txt
-
 # Backup Tool
-ifneq ($(WITH_GMS),true)
 PRODUCT_COPY_FILES += \
-    vendor/cm/prebuilt/common/bin/backuptool.sh:system/bin/backuptool.sh \
-    vendor/cm/prebuilt/common/bin/backuptool.functions:system/bin/backuptool.functions \
-    vendor/cm/prebuilt/common/bin/50-cm.sh:system/addon.d/50-cm.sh \
-    vendor/cm/prebuilt/common/bin/blacklist:system/addon.d/blacklist
-endif
+    vendor/fusion/prebuilt/common/bin/backuptool.sh:system/bin/backuptool.sh \
+    vendor/fusion/prebuilt/common/bin/backuptool.functions:system/bin/backuptool.functions \
+    vendor/fusion/prebuilt/common/bin/50-fusion.sh:system/addon.d/50-fusion.sh \
+    vendor/fusion/prebuilt/common/bin/blacklist:system/addon.d/blacklist
 
 # Signature compatibility validation
 PRODUCT_COPY_FILES += \
-    vendor/cm/prebuilt/common/bin/otasigcheck.sh:system/bin/otasigcheck.sh
+    vendor/fusion/prebuilt/common/bin/otasigcheck.sh:system/bin/otasigcheck.sh
 
 # init.d support
 PRODUCT_COPY_FILES += \
-    vendor/cm/prebuilt/common/etc/init.d/00banner:system/etc/init.d/00banner \
-    vendor/cm/prebuilt/common/bin/sysinit:system/bin/sysinit
+    vendor/fusion/prebuilt/common/etc/init.d/00banner:system/etc/init.d/00banner \
+    vendor/fusion/prebuilt/common/bin/sysinit:system/bin/sysinit
+
+# fstrim support
+PRODUCT_COPY_FILES += \
+    vendor/fusion/prebuilt/common/etc/init.d/99fstrim:system/etc/init.d/99fstrim
 
 # userinit support
 PRODUCT_COPY_FILES += \
-    vendor/cm/prebuilt/common/etc/init.d/90userinit:system/etc/init.d/90userinit
+    vendor/fusion/prebuilt/common/etc/init.d/90userinit:system/etc/init.d/90userinit
 
-# CM-specific init file
+# SuperSU
 PRODUCT_COPY_FILES += \
-    vendor/cm/prebuilt/common/etc/init.local.rc:root/init.cm.rc
+    vendor/fusion/prebuilt/common/etc/UPDATE-SuperSU.zip:system/addon.d/UPDATE-SuperSU.zip \
+    vendor/fusion/prebuilt/common/etc/init.d/99SuperSUDaemon:system/etc/init.d/99SuperSUDaemon
+
+# Fusion-specific init file
+PRODUCT_COPY_FILES += \
+    vendor/fusion/prebuilt/common/etc/init.cm.rc:root/init.cm.rc \
 
 # Bring in camera effects
 PRODUCT_COPY_FILES +=  \
-    vendor/cm/prebuilt/common/media/LMprec_508.emd:system/media/LMprec_508.emd \
-    vendor/cm/prebuilt/common/media/PFFprec_600.emd:system/media/PFFprec_600.emd
+    vendor/fusion/prebuilt/common/media/LMprec_508.emd:system/media/LMprec_508.emd \
+    vendor/fusion/prebuilt/common/media/PFFprec_600.emd:system/media/PFFprec_600.emd
 
 # Enable SIP+VoIP on all targets
 PRODUCT_COPY_FILES += \
@@ -121,49 +111,85 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     frameworks/base/data/keyboards/Vendor_045e_Product_028e.kl:system/usr/keylayout/Vendor_045e_Product_0719.kl
 
-# This is CM!
+# Copy latinime for gesture typing
 PRODUCT_COPY_FILES += \
-    vendor/cm/config/permissions/com.cyanogenmod.android.xml:system/etc/permissions/com.cyanogenmod.android.xml
+    vendor/fusion/prebuilt/common/lib/libjni_latinimegoogle.so:system/lib/libjni_latinimegoogle.so
+
+# Chromium Prebuilt
+ifeq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)
+-include prebuilts/chromium/$(TARGET_DEVICE)/chromium_prebuilt.mk
+endif
+
+# This is Fusion!
+PRODUCT_COPY_FILES += \
+    vendor/fusion/config/permissions/com.fusion.android.xml:system/etc/permissions/com.fusion.android.xml
 
 # T-Mobile theme engine
-include vendor/cm/config/themes_common.mk
+include vendor/fusion/config/themes_common.mk
 
-# Required CM packages
+# Screen recorder
 PRODUCT_PACKAGES += \
+    ScreenRecorder \
+    libscreenrecorder
+
+# Fusion packages
+PRODUCT_PACKAGES += \
+    AudioFX \
+    CMFileManager \
+    DashClock \
+    DeskClock \
+    Eleven \
+    FusionOTA \
+    LockClock \
+    OmniSwitch \
+    Trebuchet
+
+# Fusion extra packages
+PRODUCT_PACKAGES += \
+    libemoji \
+    SpareParts \
+    LiveWallpapersPicker \
+    vim \
     Development \
     LatinIME \
-    BluetoothExt
+    BluetoothExt \
+    Profiles
 
-# Optional CM packages
-PRODUCT_PACKAGES += \
-    VoicePlus \
-    Basic \
-    libemoji
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.root_access=0
 
-# Custom CM packages
+# Viper4Android
+PRODUCT_COPY_FILES += \
+    vendor/fusion/prebuilt/common/etc/viper4android/viper4android.apk:system/app/Viper4Android/viper4android.apk
+
+# Bring in all video files
+$(call inherit-product, frameworks/base/data/videos/VideoPackage2.mk)
+
+# Include Fusion audio files
+include vendor/fusion/config/fusion_audio.mk
+
+# Include Fusion LatinIME dictionaries
+PRODUCT_PACKAGE_OVERLAYS += vendor/fusion/overlay/dictionaries
+
+# Prebuilts for Fusion
+PRODUCT_COPY_FILES += \
+    vendor/fusion/prebuilt/KernelTweaker.apk:system/app/KernelTweaker.apk \
+    vendor/fusion/prebuilt/KernelMonitor.apk:system/app/KernelMonitor.apk
+
+# CM Platform Library
 PRODUCT_PACKAGES += \
-    Launcher3 \
-    Trebuchet \
-    DSPManager \
-    libcyanogen-dsp \
-    audio_effects.conf \
-    CMWallpapers \
-    Apollo \
-    CMFileManager \
-    LockClock \
-    CMUpdater \
-    CMAccount \
-    CMHome
+    org.cyanogenmod.platform-res \
+    org.cyanogenmod.platform \
+    org.cyanogenmod.platform.xml
 
 # CM Hardware Abstraction Framework
 PRODUCT_PACKAGES += \
     org.cyanogenmod.hardware \
     org.cyanogenmod.hardware.xml
 
-# Extra tools in CM
+# Extra tools in Fusion
 PRODUCT_PACKAGES += \
     libsepol \
-    openvpn \
     e2fsck \
     mke2fs \
     tune2fs \
@@ -207,138 +233,67 @@ PRODUCT_PACKAGES += \
     libFFmpegExtractor \
     libnamparser
 
-# These packages are excluded from user builds
-ifneq ($(TARGET_BUILD_VARIANT),user)
-
+#ROOT
 PRODUCT_PACKAGES += \
     procmem \
     procrank \
-    Superuser \
     su
 
-# Terminal Emulator
-PRODUCT_COPY_FILES +=  \
-    vendor/cm/proprietary/Term.apk:system/app/Term/Term.apk \
-    vendor/cm/proprietary/lib/armeabi/libjackpal-androidterm4.so:system/app/Term/lib/arm/libjackpal-androidterm4.so
+PRODUCT_PACKAGE_OVERLAYS += vendor/fusion/overlay/common
+
+# Fusion version
+RELEASE = false
+FUSIONSP_VERSION_MAJOR = 6
+FUSIONSP_VERSION_MINOR = 0
+
+# release
+ifeq ($(RELEASE),true)
+    FUSIONSP_VERSION_STATE := $(shell date +%Y%m%d)
+    FUSIONSP_VERSION := Fusion-v$(FUSIONSP_VERSION_MAJOR).$(FUSIONSP_VERSION_MINOR)-$(TARGET_PRODUCT)-OFFICIAL-$(FUSIONSP_VERSION_STATE)
+else
+    FUSIONSP_VERSION_STATE := $(shell date +%Y%m%d)
+    FUSIONSP_VERSION := Fusion-v$(FUSIONSP_VERSION_MAJOR).$(FUSIONSP_VERSION_MINOR)-$(TARGET_PRODUCT)-NIGHTLY-$(FUSIONSP_VERSION_STATE)
+endif
+
+# HFM Files
+PRODUCT_COPY_FILES += \
+        vendor/fusion/prebuilt/etc/hosts.alt:system/etc/hosts.alt \
+        vendor/fusion/prebuilt/etc/hosts.og:system/etc/hosts.og
+
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.root_access=1
-else
+    fusion.ota.version=$(shell date -u +%Y%m%d) \
+    ro.fusionsp.version=$(FUSIONSP_VERSION)
 
+ifndef CM_PLATFORM_SDK_VERSION
+  # This is the canonical definition of the SDK version, which defines
+  # the set of APIs and functionality available in the platform.  It
+  # is a single integer that increases monotonically as updates to
+  # the SDK are released.  It should only be incremented when the APIs for
+  # the new release are frozen (so that developers don't write apps against
+  # intermediate builds).
+  CM_PLATFORM_SDK_VERSION := 1
+endif
+
+ifeq ($(RELEASE),true)
+# Disable multithreaded dexopt by default
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.root_access=0
-
-endif
-
-PRODUCT_PACKAGE_OVERLAYS += vendor/cm/overlay/common
-
-PRODUCT_VERSION_MAJOR = 12
-PRODUCT_VERSION_MINOR = 0
-PRODUCT_VERSION_MAINTENANCE = 0-RC0
-
-# Set CM_BUILDTYPE from the env RELEASE_TYPE, for jenkins compat
-
-ifndef CM_BUILDTYPE
-    ifdef RELEASE_TYPE
-        # Starting with "CM_" is optional
-        RELEASE_TYPE := $(shell echo $(RELEASE_TYPE) | sed -e 's|^CM_||g')
-        CM_BUILDTYPE := $(RELEASE_TYPE)
-    endif
-endif
-
-# Filter out random types, so it'll reset to UNOFFICIAL
-ifeq ($(filter RELEASE NIGHTLY SNAPSHOT EXPERIMENTAL,$(CM_BUILDTYPE)),)
-    CM_BUILDTYPE :=
-endif
-
-ifdef CM_BUILDTYPE
-    ifneq ($(CM_BUILDTYPE), SNAPSHOT)
-        ifdef CM_EXTRAVERSION
-            # Force build type to EXPERIMENTAL
-            CM_BUILDTYPE := EXPERIMENTAL
-            # Remove leading dash from CM_EXTRAVERSION
-            CM_EXTRAVERSION := $(shell echo $(CM_EXTRAVERSION) | sed 's/-//')
-            # Add leading dash to CM_EXTRAVERSION
-            CM_EXTRAVERSION := -$(CM_EXTRAVERSION)
-        endif
-    else
-        ifndef CM_EXTRAVERSION
-            # Force build type to EXPERIMENTAL, SNAPSHOT mandates a tag
-            CM_BUILDTYPE := EXPERIMENTAL
-        else
-            # Remove leading dash from CM_EXTRAVERSION
-            CM_EXTRAVERSION := $(shell echo $(CM_EXTRAVERSION) | sed 's/-//')
-            # Add leading dash to CM_EXTRAVERSION
-            CM_EXTRAVERSION := -$(CM_EXTRAVERSION)
-        endif
-    endif
-else
-    # If CM_BUILDTYPE is not defined, set to UNOFFICIAL
-    CM_BUILDTYPE := UNOFFICIAL
-    CM_EXTRAVERSION :=
-endif
-
-ifeq ($(CM_BUILDTYPE), UNOFFICIAL)
-    ifneq ($(TARGET_UNOFFICIAL_BUILD_ID),)
-        CM_EXTRAVERSION := -$(TARGET_UNOFFICIAL_BUILD_ID)
-    endif
-endif
-
-ifeq ($(CM_BUILDTYPE), RELEASE)
-    ifndef TARGET_VENDOR_RELEASE_BUILD_ID
-        CM_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(CM_BUILD)
-    else
-        ifeq ($(TARGET_BUILD_VARIANT),user)
-            CM_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(TARGET_VENDOR_RELEASE_BUILD_ID)-$(CM_BUILD)
-        else
-            CM_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(CM_BUILD)
-        endif
-    endif
-else
-    ifeq ($(PRODUCT_VERSION_MINOR),0)
-        CM_VERSION := $(PRODUCT_VERSION_MAJOR)-$(shell date -u +%Y%m%d)-$(CM_BUILDTYPE)$(CM_EXTRAVERSION)-$(CM_BUILD)
-    else
-        CM_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(shell date -u +%Y%m%d)-$(CM_BUILDTYPE)$(CM_EXTRAVERSION)-$(CM_BUILD)
-    endif
-endif
-
-PRODUCT_PROPERTY_OVERRIDES += \
-  ro.cm.version=$(CM_VERSION) \
-  ro.cm.releasetype=$(CM_BUILDTYPE) \
-  ro.modversion=$(CM_VERSION) \
-  ro.cmlegal.url=http://www.cyanogenmod.org/docs/privacy
-
--include vendor/cm-priv/keys/keys.mk
-
-CM_DISPLAY_VERSION := $(CM_VERSION)
-
-ifneq ($(PRODUCT_DEFAULT_DEV_CERTIFICATE),)
-ifneq ($(PRODUCT_DEFAULT_DEV_CERTIFICATE),build/target/product/security/testkey)
-  ifneq ($(CM_BUILDTYPE), UNOFFICIAL)
-    ifndef TARGET_VENDOR_RELEASE_BUILD_ID
-      ifneq ($(CM_EXTRAVERSION),)
-        # Remove leading dash from CM_EXTRAVERSION
-        CM_EXTRAVERSION := $(shell echo $(CM_EXTRAVERSION) | sed 's/-//')
-        TARGET_VENDOR_RELEASE_BUILD_ID := $(CM_EXTRAVERSION)
-      else
-        TARGET_VENDOR_RELEASE_BUILD_ID := $(shell date -u +%Y%m%d)
-      endif
-    else
-      TARGET_VENDOR_RELEASE_BUILD_ID := $(TARGET_VENDOR_RELEASE_BUILD_ID)
-    endif
-    CM_DISPLAY_VERSION=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(TARGET_VENDOR_RELEASE_BUILD_ID)
-  endif
-endif
+    persist.sys.dalvik.multithread=false
 endif
 
 # by default, do not update the recovery with system updates
 PRODUCT_PROPERTY_OVERRIDES += persist.sys.recovery_update=false
 
+# CyanogenMod Platform SDK Version
 PRODUCT_PROPERTY_OVERRIDES += \
-  ro.cm.display.version=$(CM_DISPLAY_VERSION)
+  ro.cm.build.version.plat.sdk=$(CM_PLATFORM_SDK_VERSION)
 
 -include $(WORKSPACE)/build_env/image-auto-bits.mk
 
 -include vendor/cyngn/product.mk
 
 $(call inherit-product-if-exists, vendor/extra/product.mk)
+
+# Inherit sabermod configs.
+include vendor/fusion/config/sm.mk
+
