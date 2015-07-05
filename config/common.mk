@@ -172,11 +172,6 @@ include vendor/fusion/config/fusion_audio.mk
 # Include Fusion LatinIME dictionaries
 PRODUCT_PACKAGE_OVERLAYS += vendor/fusion/overlay/dictionaries
 
-# Prebuilts for Fusion
-PRODUCT_COPY_FILES += \
-    vendor/fusion/prebuilt/KernelTweaker.apk:system/app/KernelTweaker.apk \
-    vendor/fusion/prebuilt/KernelMonitor.apk:system/app/KernelMonitor.apk
-
 # CM Platform Library
 PRODUCT_PACKAGES += \
     org.cyanogenmod.platform-res \
